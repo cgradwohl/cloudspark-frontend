@@ -3,79 +3,66 @@ import Layout from "@layouts/Layout.astro";
 import { getCollection } from "astro:content";
 
 const blogs = await getCollection("blogs");
+
+const MONTHS = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
+];
+const getMonthName = (date: Date) => MONTHS[new Date(date).getMonth()];
 ---
 
 <Layout title="Cloudspark - Blog">
   <div class="py-24 sm:py-32">
     <div class="mx-auto max-w-7xl px-6 lg:px-8">
       <div class="mx-auto max-w-2xl">
-        <h2 class="text-3xl font-bold tracking-tight sm:text-4xl">Blog</h2>
-        <!-- <p class="mt-2 text-lg leading-8 ">
-          Learn how to grow your business with our expert advice.
-        </p> -->
-        <div
-          class="mt-10 space-y-16 border-t border-gray-200 pt-10 sm:mt-16 sm:pt-16"
+        <h2
+          class="text-3xl text-orange-600 font-bold tracking-tight sm:text-4xl"
+        >
+          Blog
+        </h2>
+
+        <section
+          class="flex flex-col gap-12 border-t border-gray-200 pt-5 sm:mt-8 sm:pt-8"
         >
           {
             blogs.map((blog) => (
-              <article class="flex max-w-xl flex-col items-start justify-between">
-                <div class="flex items-center gap-x-4 text-xs">
-                  <time datetime="2020-03-16" class="">
-                    {(blog.data.publicationDate.getMonth() + 1 + "").padStart(
-                      2,
-                      "0",
-                    ) +
-                      "-" +
-                      (blog.data.publicationDate.getDate() + "").padStart(
-                        2,
-                        "0",
-                      ) +
-                      "-" +
-                      blog.data.publicationDate.getFullYear()}
-                  </time>
-                  {blog.data.tags &&
-                    blog.data.tags.map((tag) => (
-                      <a
-                        href={`/blogs/${blog.slug}`}
-                        class="relative z-10 rounded-full bg-slate-500 px-3 py-1.5 font-medium  hover:bg-gray-100"
-                      >
-                        {tag}
-                      </a>
-                    ))}
+              <div class="flex gap-6">
+                <div class="sm:w-20 md:w-32">
+                  <div class="flex flex-col w-full text-center">
+                    <span class="text-6xl font-semibold text-teal-400">
+                      {new Date(blog.data.date).getDate()}
+                    </span>
+                    <span class="text-teal-400">
+                      {`${getMonthName(blog.data.date)} ${new Date(
+                        blog.data.date,
+                      ).getFullYear()}`}
+                    </span>
+                  </div>
                 </div>
-                <div class="group relative">
-                  <h3 class="mt-3 text-lg font-semibold leading-6 group-hover:text-gray-500">
-                    <a href={`/blogs/${blog.slug}`}>
-                      <span class="absolute inset-0" />
+                <div class="flex-1">
+                  <h4 class="text-2xl text-orange-600 font-semibold text-theme-primary dark:text-theme-dark-primary hover:underline mb-2 dark:text-theme-dark-primary">
+                    <a href={`/blogs/${blog.slug}`} title={blog.data.title}>
                       {blog.data.title}
                     </a>
-                  </h3>
-                  <p class="mt-5 line-clamp-3 text-sm leading-6 ">
+                  </h4>
+                  <p class="text-lg leading-6 line-clamp-2 dark:text-white hyphens-auto">
                     {blog.data.description}
                   </p>
                 </div>
-                <div class="relative mt-8 flex items-center gap-x-4">
-                  {blog.data.image && (
-                    <img
-                      src={blog.data.image}
-                      alt=""
-                      class="h-10 w-10 rounded-full bg-gray-50"
-                    />
-                  )}
-
-                  <div class="text-sm leading-6">
-                    <p class="font-semibold">
-                      <a href="#">
-                        <span class="absolute inset-0" />
-                        {blog.data.author}
-                      </a>
-                    </p>
-                  </div>
-                </div>
-              </article>
+              </div>
             ))
           }
-        </div>
+        </section>
       </div>
     </div>
   </div>

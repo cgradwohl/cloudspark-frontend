@@ -8,7 +8,7 @@ const blogs = defineCollection({
     // required
     author: z.string(),
     description: z.string(),
-    publicationDate: z.date(),
+    date: z.date(),
     title: z.string(),
     // optional
     image: z.string().optional(),
