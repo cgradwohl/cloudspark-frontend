@@ -3,8 +3,10 @@ author: Chris Gradwohl
 publicationDate: 2023-12-03T16:53:53.226Z
 title: My First Blog
 tags:
-  - docs
+  - aws
+  - serverless
 description: my first blog post with astro
+image: ""
 ---
 ### HELLO
 hello world
