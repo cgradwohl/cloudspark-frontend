@@ -8,3 +8,5 @@ description: my first blog post with astro
 ---
 ### HELLO
 hello world
+
+![A starry night sky.](../images/aws-essential-serverless-services.png)
