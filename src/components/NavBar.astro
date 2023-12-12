@@ -15,10 +15,11 @@
     </div>
     <div class="flex lg:hidden">
       <button
+        id="openMenuButton"
         type="button"
         class="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 text-gray-400"
       >
-        <span class="sr-only">Open main menu</span>
+        <span class="sr-only">Open navigation menu</span>
         <svg
           class="h-6 w-6"
           fill="none"
@@ -42,16 +43,10 @@
       <a href="/" class="text-sm font-semibold leading-6 text-white"
         >Newsletter</a
       >
-      <!-- <a href="#" class="text-sm font-semibold leading-6 text-white"
-        >Contact Us</a
-      > -->
     </div>
-    <!-- <div class="hidden lg:flex lg:flex-1 lg:justify-end">
-          <a href="#" class="text-sm font-semibold leading-6 text-white">Log in <span aria-hidden="true">&rarr;</span></a>
-        </div> -->
   </nav>
   <!-- Mobile menu, show/hide based on menu open state. -->
-  <div class="lg:hidden" role="dialog" aria-modal="true">
+  <div id="mobileMenu" class="hidden lg:hidden" role="dialog" aria-modal="true">
     <!-- Background backdrop, show/hide based on slide-over state. -->
     <div class="fixed inset-0 z-50"></div>
     <div
@@ -59,15 +54,19 @@
     >
       <div class="flex items-center justify-between">
         <a href="#" class="-m-1.5 p-1.5">
-          <span class="sr-only">Your Company</span>
+          <span class="sr-only">Cloudspark Inc.</span>
           <img
             class="h-8 w-auto"
             src="/cloudspark-astronaught-bg-transparent.png"
             alt=""
           />
         </a>
-        <button type="button" class="-m-2.5 rounded-md p-2.5 text-gray-400">
-          <span class="sr-only">Close menu</span>
+        <button
+          id="closeMenuButton"
+          type="button"
+          class="-m-2.5 rounded-md p-2.5 text-gray-400"
+        >
+          <span class="sr-only">Close navigation menu</span>
           <svg
             class="h-6 w-6"
             fill="none"
@@ -101,17 +100,25 @@
               class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-white hover:bg-gray-800"
               >Newletter</a
             >
-            <!-- <a
-              href="#"
-              class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-white hover:bg-gray-800"
-              >Contact Us</a
-            > -->
           </div>
-          <!-- <div class="py-6">
-                <a href="#" class="-mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-white hover:bg-gray-800">Log in</a>
-              </div> -->
         </div>
       </div>
     </div>
   </div>
 </header>
+
+<script>
+  document.addEventListener("DOMContentLoaded", (event) => {
+    const openMenuButton = document.getElementById("openMenuButton");
+    const closeMenuButton = document.getElementById("closeMenuButton");
+    const mobileMenu = document.getElementById("mobileMenu");
+
+    openMenuButton?.addEventListener("click", () => {
+      mobileMenu?.classList.remove("hidden");
+    });
+
+    closeMenuButton?.addEventListener("click", () => {
+      mobileMenu?.classList.add("hidden");
+    });
+  });
+</script>
