@@ -4,8 +4,8 @@
   <div class="w-full max-w-md space-y-8">
     <!-- NOTE: on submit we want to post the form data to our server endpoint -->
     <form
+      id="email-signup-form"
       class="mt-8 space-y-6"
-      action="/form-submit-handler"
       method="POST"
       novalidate
     >
@@ -14,10 +14,11 @@
         <div>
           <label for="email-address" class="sr-only">Email address</label>
           <input
+            autocomplete="off"
             id="email-address"
             name="email"
             type="email"
-            class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-sm shadow-sm placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 invalid:border-pink-500 invalid:text-pink-600 focus:invalid:border-pink-500 focus:invalid:ring-pink-500"
+            class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-sm text-slate-700 shadow-sm placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 invalid:border-pink-500 invalid:text-pink-600 focus:invalid:border-pink-500 focus:invalid:ring-pink-500"
             placeholder="Email address"
           />
         </div>
@@ -34,3 +35,22 @@
     </form>
   </div>
 </div>
+
+<!-- <script>
+  const form = document.getElementById("email-signup-form") as HTMLFormElement;
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const formData = new FormData(form);
+    const response = await fetch("/api/email-signup", {
+      method: "POST",
+      body: formData,
+    });
+    const data = await response.json();
+    if (data.success) {
+      window.location.href = "/thank-you";
+    } else {
+      alert(data.message);
+    }
+  });
+</script> -->

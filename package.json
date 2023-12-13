@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@astrojs/tailwind": "^5.0.3",
+    "@libsql/client": "^0.4.0-pre.5",
     "@tailwindcss/forms": "^0.5.7",
     "astro": "^4.0.2",
     "tailwind": "^4.0.0",

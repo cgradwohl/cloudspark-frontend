@@ -18,6 +18,9 @@
       "@layouts/*": [
         "layouts/*"
       ],
+      "@lib/*": [
+        "lib/*"
+      ],
       "@pages/*": [
         "pages/*"
       ],

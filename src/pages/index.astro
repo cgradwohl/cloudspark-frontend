@@ -1,7 +1,51 @@
 ---
 import Layout from "@layouts/Layout.astro";
-import NavBar from "@components/NavBar.astro";
 import EmailSignupForm from "@components/EmailSignupForm.astro";
+import { turso } from "@lib/turso";
+
+interface SQLiteError extends Error {
+  code: string;
+}
+
+function assertSQLiteError(error: unknown): asserts error is SQLiteError {
+  if (typeof error === "object" && error !== null && "code" in error) {
+    const e = error as SQLiteError;
+
+    if (typeof e.code === "string") {
+      return;
+    }
+  }
+
+  throw error;
+}
+
+let alreadyExists = false;
+
+if (Astro.request.method === "POST") {
+  const data = await Astro.request.formData();
+  const email = data.get("email");
+  console.log("email", email);
+
+  if (!email) {
+    throw new Error("No email provided");
+  }
+
+  try {
+    const rs = await turso.execute(
+      `INSERT INTO users (email) VALUES ("${email}");`,
+    );
+  } catch (error) {
+    assertSQLiteError(error);
+    if (
+      error?.code === "SQLITE_CONSTRAINT" &&
+      error.message.includes("UNIQUE constraint failed: users.email")
+    ) {
+      alreadyExists = true;
+    }
+
+    console.error(error);
+  }
+}
 ---
 
 <Layout title="Cloud Spark - Home">
@@ -35,6 +79,7 @@ import EmailSignupForm from "@components/EmailSignupForm.astro";
               your cloud solutions forward.
             </p>
             <EmailSignupForm />
+            {alreadyExists && <p>The email already exists.</p>}
           </div>
         </div>
       </div>
