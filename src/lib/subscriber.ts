@@ -1,4 +1,4 @@
-import { nanoid } from "nanoid";
+// import { nanoid } from "nanoid";
 import { turso } from "./turso";
 
 type SubscriberStatus = "subscribed" | "unsubscribed" | "pending" | "deleted";
@@ -17,7 +17,8 @@ export function SubscriberFactory(
   status: SubscriberStatus = "pending"
 ): Subscriber {
   const now = new Date().toISOString();
-  const subscriberId = nanoid();
+  // const subscriberId = nanoid();
+  const subscriberId = "123";
 
   return {
     created: now,
