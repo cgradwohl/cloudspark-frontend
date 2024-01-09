@@ -54,13 +54,15 @@ if (Astro.request.method === "POST") {
     }
   }
 
-  try {
-    // create profile in Courier which adds the profile to Primary audience
-    // and send a confirmation email to the user via an Automation
-    await courier.createProfile(subscriber.email, subscriber.subscriberId);
-  } catch (error) {
-    console.error(error);
-    courierError = true;
+  if (!alreadyExists && !sqlError) {
+    try {
+      // create profile in Courier which adds the profile to Primary audience
+      // and send a confirmation email to the user via an Automation
+      await courier.createProfile(subscriber.email, subscriber.subscriberId);
+    } catch (error) {
+      console.error(error);
+      courierError = true;
+    }
   }
 
   // redirect to success page
