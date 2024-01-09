@@ -29,7 +29,6 @@ if (Astro.request.method === "POST") {
   console.log("email", email);
   console.log("email.toString()", email?.toString());
 
-  // validate form data
   if (!email) {
     throw new Error("No email provided");
   }
@@ -38,10 +37,17 @@ if (Astro.request.method === "POST") {
   const subscriber = SubscriberFactory(email.toString());
 
   try {
-    // create subscriber in db
+    // create profile in Courier which adds the profile to Primary audience
+    // and send a confirmation email to the user via an Automation
+    await courier.createProfile(subscriber.email, subscriber.subscriberId);
+  } catch (error) {
+    courierError = true;
+    console.error(error);
+  }
+
+  try {
     await createSubscriber(subscriber);
   } catch (error) {
-    console.error(error);
     assertSQLiteError(error);
     if (
       error?.code === "SQLITE_CONSTRAINT" &&
@@ -49,15 +55,8 @@ if (Astro.request.method === "POST") {
     ) {
       alreadyExists = true;
     }
-  }
 
-  try {
-    // create profile in Courier which adds the profile to Primary audience
-    // and send a confirmation email to the user via an Automation
-    await courier.createProfile(subscriber.email, subscriber.subscriberId);
-  } catch (error) {
     console.error(error);
-    courierError = true;
   }
 }
 ---
