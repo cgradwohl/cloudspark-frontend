@@ -1,77 +1,77 @@
 ---
 import Layout from "@layouts/Layout.astro";
-import EmailSignupForm from "@components/EmailSignupForm.astro";
-import { courier } from "@lib/courier";
-import { SubscriberFactory, createSubscriber } from "@lib/subscriber";
+// import EmailSignupForm from "@components/EmailSignupForm.astro";
+// import { courier } from "@lib/courier";
+// import { SubscriberFactory, createSubscriber } from "@lib/subscriber";
 
-interface SQLiteError extends Error {
-  code: string;
-}
+// interface SQLiteError extends Error {
+//   code: string;
+// }
 
-function assertSQLiteError(error: unknown): asserts error is SQLiteError {
-  if (typeof error === "object" && error !== null && "code" in error) {
-    const e = error as SQLiteError;
+// function assertSQLiteError(error: unknown): asserts error is SQLiteError {
+//   if (typeof error === "object" && error !== null && "code" in error) {
+//     const e = error as SQLiteError;
 
-    if (typeof e.code === "string") {
-      return;
-    }
-  }
+//     if (typeof e.code === "string") {
+//       return;
+//     }
+//   }
 
-  throw error;
-}
+//   throw error;
+// }
 
-let alreadyExists = false;
-let courierError = false;
-let sqlError = false;
+// let alreadyExists = false;
+// let courierError = false;
+// let sqlError = false;
 
-if (Astro.request.method === "POST") {
-  const data = await Astro.request.formData();
-  const email = data.get("email");
+// if (Astro.request.method === "POST") {
+//   const data = await Astro.request.formData();
+//   const email = data.get("email");
 
-  // validate form data
-  if (!email) {
-    throw new Error("No email provided");
-  }
+//   // validate form data
+//   if (!email) {
+//     throw new Error("No email provided");
+//   }
 
-  // create subscription entity object with status "pending"
-  const subscriber = SubscriberFactory(email.toString());
+//   // create subscription entity object with status "pending"
+//   const subscriber = SubscriberFactory(email.toString());
 
-  try {
-    // create subscriber in db
-    await createSubscriber(subscriber);
-  } catch (error) {
-    console.error(error);
-    assertSQLiteError(error);
-    if (
-      error?.code === "SQLITE_CONSTRAINT" &&
-      error.message.includes("UNIQUE constraint failed: subscribers.email")
-    ) {
-      console.log("YES");
-      alreadyExists = true;
-    } else {
-      console.log("NO");
-      sqlError = true;
-    }
-  }
+//   try {
+//     // create subscriber in db
+//     await createSubscriber(subscriber);
+//   } catch (error) {
+//     console.error(error);
+//     assertSQLiteError(error);
+//     if (
+//       error?.code === "SQLITE_CONSTRAINT" &&
+//       error.message.includes("UNIQUE constraint failed: subscribers.email")
+//     ) {
+//       console.log("YES");
+//       alreadyExists = true;
+//     } else {
+//       console.log("NO");
+//       sqlError = true;
+//     }
+//   }
 
-  if (!alreadyExists && !sqlError) {
-    try {
-      // create profile in Courier which adds the profile to Primary audience
-      // and send a confirmation email to the user via an Automation
-      await courier.createProfile(subscriber.email, subscriber.subscriberId);
-    } catch (error) {
-      console.error(error);
-      courierError = true;
-    }
-  }
+//   if (!alreadyExists && !sqlError) {
+//     try {
+//       // create profile in Courier which adds the profile to Primary audience
+//       // and send a confirmation email to the user via an Automation
+//       await courier.createProfile(subscriber.email, subscriber.subscriberId);
+//     } catch (error) {
+//       console.error(error);
+//       courierError = true;
+//     }
+//   }
 
-  // redirect to success page
-  // TODO: update page to show success message??
-  if (!alreadyExists && !courierError && !sqlError) {
-    Astro.response.status = 302;
-    Astro.response.headers.set("Location", "/");
-  }
-}
+//   // redirect to success page
+//   // TODO: update page to show success message??
+//   if (!alreadyExists && !courierError && !sqlError) {
+//     Astro.response.status = 302;
+//     Astro.response.headers.set("Location", "/");
+//   }
+// }
 ---
 
 <Layout title="Cloud Spark - Home">
@@ -104,10 +104,10 @@ if (Astro.request.method === "POST") {
               your inbox, free of charge. Subscribe to our newsletter and drive
               your cloud solutions forward.
             </p>
-            <EmailSignupForm />
+            <!-- <EmailSignupForm />
             {alreadyExists && <p>The email already exists.</p>}
             {courierError && <p>There was an error capturing your email.</p>}
-            {sqlError && <p>There was an error capturing your email.</p>}
+            {sqlError && <p>There was an error capturing your email.</p>} -->
           </div>
         </div>
       </div>
