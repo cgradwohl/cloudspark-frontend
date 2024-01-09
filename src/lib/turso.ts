@@ -6,8 +6,7 @@ CREATE TABLE subscribers (
   email TEXT NOT NULL,     
   subscriberId TEXT PRIMARY KEY,
   status TEXT NOT NULL,    
-  ttl INTEGER,             
-  updated TEXT         
+  updated TEXT
 );
  */
 

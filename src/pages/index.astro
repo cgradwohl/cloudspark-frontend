@@ -22,12 +22,11 @@ function assertSQLiteError(error: unknown): asserts error is SQLiteError {
 
 let alreadyExists = false;
 let courierError = false;
+let sqlError = false;
 
 if (Astro.request.method === "POST") {
   const data = await Astro.request.formData();
   const email = data.get("email");
-  console.log("email", email);
-  console.log("email.toString()", email?.toString());
 
   // validate form data
   if (!email) {
@@ -45,9 +44,13 @@ if (Astro.request.method === "POST") {
     assertSQLiteError(error);
     if (
       error?.code === "SQLITE_CONSTRAINT" &&
-      error.message.includes("UNIQUE constraint failed: users.email")
+      error.message.includes("UNIQUE constraint failed: subscribers.email")
     ) {
+      console.log("YES");
       alreadyExists = true;
+    } else {
+      console.log("NO");
+      sqlError = true;
     }
   }
 
@@ -58,6 +61,13 @@ if (Astro.request.method === "POST") {
   } catch (error) {
     console.error(error);
     courierError = true;
+  }
+
+  // redirect to success page
+  // TODO: update page to show success message??
+  if (!alreadyExists && !courierError && !sqlError) {
+    Astro.response.status = 302;
+    Astro.response.headers.set("Location", "/");
   }
 }
 ---
@@ -95,6 +105,7 @@ if (Astro.request.method === "POST") {
             <EmailSignupForm />
             {alreadyExists && <p>The email already exists.</p>}
             {courierError && <p>There was an error capturing your email.</p>}
+            {sqlError && <p>There was an error capturing your email.</p>}
           </div>
         </div>
       </div>

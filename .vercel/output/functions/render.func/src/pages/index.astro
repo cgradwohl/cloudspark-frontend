@@ -22,13 +22,13 @@ function assertSQLiteError(error: unknown): asserts error is SQLiteError {
 
 let alreadyExists = false;
 let courierError = false;
+let sqlError = false;
 
 if (Astro.request.method === "POST") {
   const data = await Astro.request.formData();
   const email = data.get("email");
-  console.log("email", email);
-  console.log("email.toString()", email?.toString());
 
+  // validate form data
   if (!email) {
     throw new Error("No email provided");
   }
@@ -37,17 +37,10 @@ if (Astro.request.method === "POST") {
   const subscriber = SubscriberFactory(email.toString());
 
   try {
-    // create profile in Courier which adds the profile to Primary audience
-    // and send a confirmation email to the user via an Automation
-    await courier.createProfile(subscriber.email, subscriber.subscriberId);
-  } catch (error) {
-    courierError = true;
-    console.error(error);
-  }
-
-  try {
+    // create subscriber in db
     await createSubscriber(subscriber);
   } catch (error) {
+    console.error(error);
     assertSQLiteError(error);
     if (
       error?.code === "SQLITE_CONSTRAINT" &&
@@ -56,7 +49,23 @@ if (Astro.request.method === "POST") {
       alreadyExists = true;
     }
 
+    sqlError = true;
+  }
+
+  try {
+    // create profile in Courier which adds the profile to Primary audience
+    // and send a confirmation email to the user via an Automation
+    await courier.createProfile(subscriber.email, subscriber.subscriberId);
+  } catch (error) {
     console.error(error);
+    courierError = true;
+  }
+
+  // redirect to success page
+  // TODO: update page to show success message??
+  if (!alreadyExists && !courierError && !sqlError) {
+    Astro.response.status = 302;
+    Astro.response.headers.set("Location", "/success");
   }
 }
 ---
@@ -94,6 +103,7 @@ if (Astro.request.method === "POST") {
             <EmailSignupForm />
             {alreadyExists && <p>The email already exists.</p>}
             {courierError && <p>There was an error capturing your email.</p>}
+            {sqlError && <p>There was an error capturing your email.</p>}
           </div>
         </div>
       </div>

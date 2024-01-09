@@ -2,16 +2,14 @@ import { nanoid } from "nanoid";
 import { turso } from "./turso";
 import type { ResultSet } from "@libsql/client";
 
-type SubscriberId = string;
-type SubscriberStatus = "subscribed" | "unsubscribed" | "pending";
+type SubscriberStatus = "subscribed" | "unsubscribed" | "pending" | "deleted";
 type ISO8601 = string;
 
 export type Subscriber = {
   created: ISO8601;
   email: string;
-  subscriberId: SubscriberId;
+  subscriberId: string;
   status: SubscriberStatus;
-  ttl: number;
   updated: ISO8601;
 };
 
@@ -27,33 +25,30 @@ export function SubscriberFactory(
     email,
     subscriberId,
     status,
-    ttl: 0,
     updated: now,
   };
 }
 
 export async function createSubscriber(subscriber: Subscriber): Promise<ResultSet> {
-  const resultSet = await turso.execute(
-    `INSERT INTO subscribers
-      (
-        created,
-        email,
-        subscriberId,
-        status,
-        ttl,
-        updated
-      )
-      VALUES
-      (
-        ${subscriber.created},
-        ${subscriber.email},
-        ${subscriber.subscriberId},
-        ${subscriber.status},
-        ${subscriber.ttl},
-        ${subscriber.updated}
-      );`
-  );
-
+  const resultSet = await turso.execute({
+    sql: `INSERT INTO subscribers
+    (
+      created,
+      email,
+      subscriberId,
+      status,
+      updated
+    )
+    VALUES
+    (?, ?, ?, ?, ?);`,
+    args: [
+      subscriber.created,
+      subscriber.email,
+      subscriber.subscriberId,
+      subscriber.status,
+      subscriber.updated
+    ]
+  });
   return resultSet;
 }
 
