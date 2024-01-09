@@ -1,6 +1,5 @@
 import { nanoid } from "nanoid";
 import { turso } from "./turso";
-import type { ResultSet } from "@libsql/client";
 
 type SubscriberStatus = "subscribed" | "unsubscribed" | "pending" | "deleted";
 type ISO8601 = string;
@@ -29,7 +28,7 @@ export function SubscriberFactory(
   };
 }
 
-export async function createSubscriber(subscriber: Subscriber): Promise<ResultSet> {
+export async function createSubscriber(subscriber: Subscriber) {
   const resultSet = await turso.execute({
     sql: `INSERT INTO subscribers
     (

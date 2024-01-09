@@ -44,28 +44,32 @@ if (Astro.request.method === "POST") {
     assertSQLiteError(error);
     if (
       error?.code === "SQLITE_CONSTRAINT" &&
-      error.message.includes("UNIQUE constraint failed: users.email")
+      error.message.includes("UNIQUE constraint failed: subscribers.email")
     ) {
+      console.log("YES");
       alreadyExists = true;
+    } else {
+      console.log("NO");
+      sqlError = true;
     }
-
-    sqlError = true;
   }
 
-  try {
-    // create profile in Courier which adds the profile to Primary audience
-    // and send a confirmation email to the user via an Automation
-    await courier.createProfile(subscriber.email, subscriber.subscriberId);
-  } catch (error) {
-    console.error(error);
-    courierError = true;
+  if (!alreadyExists && !sqlError) {
+    try {
+      // create profile in Courier which adds the profile to Primary audience
+      // and send a confirmation email to the user via an Automation
+      await courier.createProfile(subscriber.email, subscriber.subscriberId);
+    } catch (error) {
+      console.error(error);
+      courierError = true;
+    }
   }
 
   // redirect to success page
   // TODO: update page to show success message??
   if (!alreadyExists && !courierError && !sqlError) {
     Astro.response.status = 302;
-    Astro.response.headers.set("Location", "/success");
+    Astro.response.headers.set("Location", "/");
   }
 }
 ---
