@@ -20,8 +20,7 @@ if (Astro.request.method === "POST") {
   try {
     const subscriber = await createSubscriber(email.toString());
 
-    // TODO: I DO NOT WANT TO DO THIS YET SINCE THEY HAVE NOT CONFIRMED THEIR EMAIL YET
-    // await createProfile(subscriber.email, subscriber.subscriberId);
+    await createProfile(subscriber.email, subscriber.subscriberId);
   } catch (error) {
     console.log("error: ", error);
     if (error instanceof LibsqlError) {
