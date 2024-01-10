@@ -1,28 +1,12 @@
 ---
 import Layout from "@layouts/Layout.astro";
 import EmailSignupForm from "@components/EmailSignupForm.astro";
-import { courier } from "@lib/courier";
-import { SubscriberFactory, createSubscriber } from "@lib/subscriber";
+import { createProfile } from "@lib/courier";
+import { createSubscriber } from "@lib/subscriber";
+import { LibsqlError } from "@libsql/client";
 
-interface SQLiteError extends Error {
-  code: string;
-}
-
-function assertSQLiteError(error: unknown): asserts error is SQLiteError {
-  if (typeof error === "object" && error !== null && "code" in error) {
-    const e = error as SQLiteError;
-
-    if (typeof e.code === "string") {
-      return;
-    }
-  }
-
-  throw error;
-}
-
-let alreadyExists = false;
-let courierError = false;
-let sqlError = false;
+let emailAlreadyExists = false;
+let unknownError = false;
 
 if (Astro.request.method === "POST") {
   const data = await Astro.request.formData();
@@ -33,43 +17,27 @@ if (Astro.request.method === "POST") {
     throw new Error("No email provided");
   }
 
-  // create subscription entity object with status "pending"
-  const subscriber = SubscriberFactory(email.toString());
-
   try {
-    // create subscriber in db
-    await createSubscriber(subscriber);
+    const subscriber = await createSubscriber(email.toString());
+    await createProfile(subscriber.email, subscriber.subscriberId);
   } catch (error) {
-    console.error(error);
-    assertSQLiteError(error);
-    if (
-      error?.code === "SQLITE_CONSTRAINT" &&
-      error.message.includes("UNIQUE constraint failed: subscribers.email")
-    ) {
-      console.log("YES");
-      alreadyExists = true;
+    console.log("error: ", error);
+    if (error instanceof LibsqlError) {
+      console.log("error is LibsqlError");
+      if (
+        error.message.includes("UNIQUE constraint failed: subscribers.email")
+      ) {
+        emailAlreadyExists = true;
+      }
     } else {
-      console.log("NO");
-      sqlError = true;
-    }
-  }
-
-  if (!alreadyExists && !sqlError) {
-    try {
-      // create profile in Courier which adds the profile to Primary audience
-      // and send a confirmation email to the user via an Automation
-      await courier.createProfile(subscriber.email, subscriber.subscriberId);
-    } catch (error) {
-      console.error(error);
-      courierError = true;
+      unknownError = true;
     }
   }
 
   // redirect to success page
-  // TODO: update page to show success message??
-  if (!alreadyExists && !courierError && !sqlError) {
+  if (!emailAlreadyExists && !unknownError) {
     Astro.response.status = 302;
-    Astro.response.headers.set("Location", "/");
+    Astro.response.headers.set("Location", "/thank-you");
   }
 }
 ---
@@ -105,9 +73,12 @@ if (Astro.request.method === "POST") {
               your cloud solutions forward.
             </p>
             <EmailSignupForm />
-            {alreadyExists && <p>The email already exists.</p>}
-            {courierError && <p>There was an error capturing your email.</p>}
-            {sqlError && <p>There was an error capturing your email.</p>}
+            {
+              emailAlreadyExists && (
+                <p>The email already exists. Please try again.</p>
+              )
+            }
+            {unknownError && <p>There was an error capturing your email.</p>}
           </div>
         </div>
       </div>
@@ -122,10 +93,5 @@ if (Astro.request.method === "POST") {
         </div>
       </div>
     </div>
-
-    <!-- NOTE: THIS IS COOL ... LINK RIGHT TO A PAGE -->
-    <!-- <a href="/markdown-page" class="p-4 underline"
-          >Markdown is also supported...</a
-        > -->
   </div>
 </Layout>

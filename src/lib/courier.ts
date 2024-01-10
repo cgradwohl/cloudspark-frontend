@@ -20,6 +20,6 @@ async function createProfile(email: string, profileId: string) {
   });
 }
 
-export const courier = {
+export {
   createProfile,
 };

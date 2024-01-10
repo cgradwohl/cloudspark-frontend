@@ -1,0 +1,54 @@
+---
+import { getCollection } from "astro:content";
+
+const blogs = await getCollection("blogs");
+
+const MONTHS = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
+];
+const getMonthName = (date: Date) => MONTHS[new Date(date).getMonth()];
+---
+
+<section
+  class="flex flex-col gap-12 border-t border-gray-200 pt-5 sm:mt-8 sm:pt-8"
+>
+  {
+    blogs.map((blog) => (
+      <div class="flex gap-6">
+        <div class="sm:w-20 md:w-32">
+          <div class="flex flex-col w-full text-center">
+            <span class="text-6xl font-semibold text-teal-400">
+              {new Date(blog.data.date).getDate()}
+            </span>
+            <span class="text-teal-400">
+              {`${getMonthName(blog.data.date)} ${new Date(
+                blog.data.date
+              ).getFullYear()}`}
+            </span>
+          </div>
+        </div>
+        <div class="flex-1">
+          <h4 class="text-2xl text-orange-600 font-semibold text-theme-primary dark:text-theme-dark-primary hover:underline mb-2 dark:text-theme-dark-primary">
+            <a href={`/blogs/${blog.slug}`} title={blog.data.title}>
+              {blog.data.title}
+            </a>
+          </h4>
+          <p class="text-lg leading-6 line-clamp-2 dark:text-white hyphens-auto">
+            {blog.data.description}
+          </p>
+        </div>
+      </div>
+    ))
+  }
+</section>

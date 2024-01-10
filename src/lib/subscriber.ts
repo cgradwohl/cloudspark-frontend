@@ -1,4 +1,4 @@
-// import { nanoid } from "nanoid";
+import { nanoid } from "nanoid";
 import { turso } from "./turso";
 
 type SubscriberStatus = "subscribed" | "unsubscribed" | "pending" | "deleted";
@@ -17,8 +17,7 @@ export function SubscriberFactory(
   status: SubscriberStatus = "pending"
 ): Subscriber {
   const now = new Date().toISOString();
-  // const subscriberId = nanoid();
-  const subscriberId = "123";
+  const subscriberId = nanoid();
 
   return {
     created: now,
@@ -29,8 +28,9 @@ export function SubscriberFactory(
   };
 }
 
-export async function createSubscriber(subscriber: Subscriber) {
-  const resultSet = await turso.execute({
+export async function createSubscriber(email: string) {
+  const subscriber = SubscriberFactory(email);
+  await turso.execute({
     sql: `INSERT INTO subscribers
     (
       created,
@@ -49,6 +49,7 @@ export async function createSubscriber(subscriber: Subscriber) {
       subscriber.updated
     ]
   });
-  return resultSet;
+
+  return subscriber;
 }
 
