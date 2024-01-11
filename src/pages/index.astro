@@ -1,7 +1,7 @@
 ---
 import Layout from "@layouts/Layout.astro";
 import EmailSignupForm from "@components/EmailSignupForm.astro";
-import { createProfile } from "@lib/courier";
+import { sendConfirmationEmail } from "@lib/courier";
 import { createSubscriber } from "@lib/subscriber";
 import { LibsqlError } from "@libsql/client";
 
@@ -11,20 +11,23 @@ let unknownError = false;
 if (Astro.request.method === "POST") {
   const data = await Astro.request.formData();
   const email = data.get("email");
+  const givenName = data.get("given_name");
 
-  // validate form data
-  if (!email) {
-    throw new Error("No email provided");
+  if (!email || !givenName) {
+    Astro.response.status = 400;
+    return;
   }
 
   try {
-    const subscriber = await createSubscriber(email.toString());
+    const subscriber = await createSubscriber(
+      email.toString(),
+      givenName.toString()
+    );
 
-    await createProfile(subscriber.email, subscriber.subscriberId);
+    await sendConfirmationEmail(subscriber);
   } catch (error) {
-    console.log("error: ", error);
+    console.error(error);
     if (error instanceof LibsqlError) {
-      console.log("error is LibsqlError");
       if (
         error.message.includes("UNIQUE constraint failed: subscribers.email")
       ) {
