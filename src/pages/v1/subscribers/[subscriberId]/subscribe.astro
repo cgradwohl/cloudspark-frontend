@@ -1,0 +1,35 @@
+---
+import { createProfile, sendWelcomeEmail } from "@lib/courier";
+import { updateSubscriberStatus } from "@lib/subscriber";
+
+const subscriberId = Astro.params.subscriberId;
+
+if (!subscriberId) {
+  return new Response(null, {
+    status: 302,
+    headers: {
+      Location: "/",
+    },
+  });
+}
+
+try {
+  const subscriber = await updateSubscriberStatus(subscriberId, "subscribed");
+
+  await createProfile(subscriber);
+
+  await sendWelcomeEmail(subscriber);
+} catch (error) {
+  console.error(error);
+
+  return new Response(null, {
+    status: 302,
+    headers: {
+      Location: "/",
+    },
+  });
+}
+---
+
+<!-- write a form asking questions about why they signed up -->
+<h2>Thank you for signing up!</h2>

@@ -22,7 +22,7 @@ export async function sendConfirmationEmail(subscriber: Subscriber) {
         given_name: subscriber.givenName,
         subscriber_id: subscriber.subscriberId,
       },
-      template: "CONFIRMATION_EMAIL",
+      template: "CONFIRM_SUBSCRIBE",
     }
   }
 
@@ -68,6 +68,13 @@ export async function createProfile(subscriber: Subscriber) {
     method: "POST",
     headers: makeCourierHeaders(),
     body: JSON.stringify(body),
+  });
+}
+
+export async function deleteProfile(subscriber: Subscriber) {
+  return fetch(makeCourierUrl(`profiles/${subscriber.subscriberId}`), {
+    method: "DELETE",
+    headers: makeCourierHeaders(),
   });
 }
 

@@ -1,49 +1,5 @@
 ---
 import Layout from "@layouts/Layout.astro";
-import EmailSignupForm from "@components/EmailSignupForm.astro";
-import { sendConfirmationEmail } from "@lib/courier";
-import { createSubscriber } from "@lib/subscriber";
-import { LibsqlError } from "@libsql/client";
-
-let emailAlreadyExists = false;
-let unknownError = false;
-
-if (Astro.request.method === "POST") {
-  const data = await Astro.request.formData();
-  const email = data.get("email");
-  const givenName = data.get("given_name");
-
-  if (!email || !givenName) {
-    Astro.response.status = 400;
-    return;
-  }
-
-  try {
-    const subscriber = await createSubscriber(
-      email.toString(),
-      givenName.toString()
-    );
-
-    await sendConfirmationEmail(subscriber);
-  } catch (error) {
-    console.error(error);
-    if (error instanceof LibsqlError) {
-      if (
-        error.message.includes("UNIQUE constraint failed: subscribers.email")
-      ) {
-        emailAlreadyExists = true;
-      }
-    } else {
-      unknownError = true;
-    }
-  }
-
-  // redirect to success page
-  if (!emailAlreadyExists && !unknownError) {
-    Astro.response.status = 302;
-    Astro.response.headers.set("Location", "/thank-you");
-  }
-}
 ---
 
 <Layout title="Cloud Spark - Home">
@@ -61,7 +17,7 @@ if (Astro.request.method === "POST") {
       </div>
       <div class="py-24 sm:py-32 lg:pb-40">
         <div class="mx-auto max-w-7xl px-6 lg:px-8">
-          <div class="mx-auto max-w-2xl text-center">
+          <div id="content" class="mx-auto max-w-2xl text-center">
             <h1
               class="text-4xl font-bold tracking-tight text-white sm:text-6xl"
             >
@@ -76,13 +32,60 @@ if (Astro.request.method === "POST") {
               your inbox, free of charge. Subscribe to our newsletter and drive
               your cloud solutions forward.
             </p>
-            <EmailSignupForm />
-            {
-              emailAlreadyExists && (
-                <p>The email already exists. Please try again.</p>
-              )
-            }
-            {unknownError && <p>There was an error capturing your email.</p>}
+
+            <!-- EMAIL SIGNUP FORM -->
+            <div
+              class="flex min-h-full items-center justify-center px-4 py-12 sm:px-6 lg:px-8"
+            >
+              <div class="w-full max-w-md space-y-8">
+                <!-- NOTE: on submit we want to post the form data to our server endpoint -->
+                <form
+                  id="email-signup-form"
+                  class="mt-8 space-y-6"
+                  hx-post="/v1/subscribers"
+                  hx-target="#content"
+                >
+                  <input type="hidden" name="remember" value="true" />
+                  <div class="-space-y-px rounded-md shadow-sm">
+                    <div>
+                      <label for="given_name" class="sr-only">Given Name</label>
+                      <input
+                        autocomplete="off"
+                        id="given_name"
+                        name="given_name"
+                        type="text"
+                        required
+                        class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-sm text-slate-700 shadow-sm placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500"
+                        placeholder="Marty McFly"
+                      />
+
+                      <label for="email-address" class="sr-only"
+                        >Email address</label
+                      >
+                      <input
+                        autocomplete="off"
+                        id="email-address"
+                        name="email"
+                        type="email"
+                        required
+                        class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-sm text-slate-700 shadow-sm placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500"
+                        placeholder="test@example.com"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <button
+                      type="submit"
+                      class="relative flex w-full justify-center rounded-md bg-sky-500 p-2 text-sm font-semibold text-white"
+                    >
+                      Join Now!
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+            <!-- EMAIL SIGNUP FORM -->
           </div>
         </div>
       </div>
