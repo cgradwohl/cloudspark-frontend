@@ -38,12 +38,12 @@ import Layout from "@layouts/Layout.astro";
               class="flex min-h-full items-center justify-center px-4 py-12 sm:px-6 lg:px-8"
             >
               <div class="w-full max-w-md space-y-8">
-                <!-- NOTE: on submit we want to post the form data to our server endpoint -->
                 <form
                   id="email-signup-form"
                   class="mt-8 space-y-6"
-                  hx-post="/v1/subscribers"
+                  hx-post="/api/v1/subscribers"
                   hx-target="#content"
+                  hx-target-409="#content"
                 >
                   <input type="hidden" name="remember" value="true" />
                   <div class="-space-y-px rounded-md shadow-sm">

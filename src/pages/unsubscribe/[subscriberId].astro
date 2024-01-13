@@ -1,0 +1,8 @@
+---
+const subscriberId = Astro.params.subscriberId;
+
+// 1. PUT /api/v1/subscribers/{id} - to validate id and update the subscriber to subscribed
+return fetch(`http://localhost:4321/api/v1/subscribers/${subscriberId}`, {
+  method: "DELETE",
+});
+---

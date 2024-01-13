@@ -54,6 +54,27 @@ export async function sendWelcomeEmail(subscriber: Subscriber) {
   });
 }
 
+export async function sendUnsubscribeEmail(subscriber: Subscriber) {
+  const body = {
+    message: {
+      to: {
+        email: subscriber.email,
+      },
+      data: {
+        given_name: subscriber.givenName,
+        subscriber_id: subscriber.subscriberId,
+      },
+      template: "CONFIRM_UNSUBSCRIBE",
+    }
+  }
+
+  return fetch(makeCourierUrl("send"), {
+    method: "POST",
+    headers: makeCourierHeaders(),
+    body: JSON.stringify(body),
+  });
+}
+
 
 export async function createProfile(subscriber: Subscriber) {
   const body = {

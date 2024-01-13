@@ -1,8 +1,7 @@
 import { nanoid } from "nanoid";
 import { turso } from "./turso";
-import type { ResultSet } from "@libsql/client";
 
-type SubscriberStatus = "subscribed" | "unsubscribed" | "pending" | "deleted";
+type SubscriberStatus = "subscribed" | "unsubscribed" | "pending";
 type ISO8601 = string;
 
 export type Subscriber = {
@@ -74,6 +73,8 @@ export async function getSubscriber(subscriberId: string) {
     ]
   });
 
+  if (result.rows.length === 0) return undefined;
+
   if (typeof result.rows[0].email !== 'string') throw new Error('email is not a string');
   if (typeof result.rows[0].givenName !== 'string') throw new Error('givenName is not a string');
   if (typeof result.rows[0].status !== 'string') throw new Error('status is not a string');
@@ -88,6 +89,10 @@ export async function getSubscriber(subscriberId: string) {
 }
 
 export async function updateSubscriberStatus(subscriberId: string, status: SubscriberStatus) {
+  const subscriber = await getSubscriber(subscriberId);
+
+  if (!subscriber) throw new Error(`Subscriber ${subscriberId} not found`);
+
   const now = new Date().toISOString();
   await turso.execute({
     sql: `UPDATE subscribers
@@ -103,8 +108,24 @@ export async function updateSubscriberStatus(subscriberId: string, status: Subsc
     ]
   });
 
+  return {
+    ...subscriber,
+    status,
+    updated: now,
+  };
+}
+
+export async function deleteSubscriber(subscriberId: string) {
   const subscriber = await getSubscriber(subscriberId);
+
+  if (!subscriber) throw new Error(`Subscriber ${subscriberId} not found`);
+
+  await turso.execute({
+    sql: `DELETE FROM subscribers WHERE subscriberId = ?;`,
+    args: [
+      subscriberId
+    ]
+  });
 
   return subscriber;
 }
-

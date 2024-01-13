@@ -1,0 +1,118 @@
+---
+import Layout from "@layouts/Layout.astro";
+import {
+  createProfile,
+  deleteProfile,
+  sendWelcomeEmail,
+  sendUnsubscribeEmail,
+} from "@lib/courier";
+import {
+  deleteSubscriber,
+  getSubscriber,
+  updateSubscriberStatus,
+} from "@lib/subscriber";
+
+const methods = ["PUT", "DELETE"];
+
+if (!methods.includes(Astro.request.method)) {
+  return new Response(null, {
+    status: 405,
+    statusText: "Method Not Allowed",
+    headers: {
+      Allow: methods.join(", "),
+    },
+  });
+}
+
+const subscriberId = Astro.params.subscriberId;
+
+if (!subscriberId || typeof subscriberId !== "string") {
+  return Astro.redirect("/400");
+}
+
+if (Astro.request.method === "PUT") {
+  // TODO: remoce this since update subscriber already checks for subscriber
+  const subscriber = await getSubscriber(subscriberId);
+
+  if (!subscriber) {
+    return Astro.redirect("/404");
+  }
+
+  // TODO: add token expiration for 24 hours
+  if (subscriber.status === "subscribed") {
+    return Astro.redirect("/blogs");
+  }
+
+  try {
+    // add better error handling, make eact method throw an error type (CourierError, SubscriberDBError)
+    await updateSubscriberStatus(subscriberId, "subscribed");
+    await createProfile(subscriber);
+    await sendWelcomeEmail(subscriber);
+
+    Astro.response.status = 200;
+  } catch (error) {
+    console.error(error);
+    Astro.response.status = 500;
+  }
+}
+
+if (Astro.request.method === "DELETE") {
+  try {
+    const subscriber = await deleteSubscriber(subscriberId);
+
+    await deleteProfile(subscriber);
+
+    await sendUnsubscribeEmail(subscriber);
+  } catch (error) {
+    Astro.response.status = 500;
+  }
+}
+---
+
+{
+  Astro.request.method === "PUT" && Astro.response.status === 200 && (
+    <Layout title="Cloud Spark - Welcome">
+      <div class="grid place-items-center h-screen content-center">
+        <h1>Welcome to Cloudspark! You are subcribed!</h1>
+
+        <form>
+          <p>What is the best programming language?</p>
+          <input type="text" name="q1" />
+          <p>What is the best programming language?</p>
+          <input type="text" name="q2" />
+          <p>What is the best programming language?</p>
+          <input type="text" name="q3" />
+          <input type="submit" />
+        </form>
+      </div>
+    </Layout>
+  )
+}
+
+{
+  Astro.request.method === "DELETE" && Astro.response.status === 200 && (
+    <Layout title="Cloud Spark - Goodbye">
+      <div class="grid place-items-center h-screen content-center">
+        <h1>Goodbye!</h1>
+
+        <p>We're sad to see you go.</p>
+      </div>
+    </Layout>
+  )
+}
+
+{
+  Astro.response.status === 500 && (
+    <Layout title="Cloud Spark - Error">
+      <div class="grid place-items-center h-screen content-center">
+        <div>
+          <h2>Someting went wrong!</h2>
+          <p>
+            We're not sure what happened, but we couldn't confirm your email.
+            Please try again later.
+          </p>
+        </div>
+      </div>
+    </Layout>
+  )
+}
