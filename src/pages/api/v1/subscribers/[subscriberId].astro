@@ -41,20 +41,18 @@ if (Astro.request.method === "GET") {
 }
 
 if (Astro.request.method === "PUT") {
-  // TODO: remoce this since update subscriber already checks for subscriber
   const subscriber = await getSubscriber(subscriberId);
 
   if (!subscriber) {
     return Astro.redirect("/404");
   }
 
-  // TODO: add token expiration for 24 hours
   if (subscriber.status === "subscribed") {
     return Astro.redirect("/blogs");
   }
 
   try {
-    // add better error handling, make eact method throw an error type (CourierError, SubscriberDBError)
+    // TODO: add better error handling, make eact method throw an error type (CourierError, SubscriberDBError)
     await updateSubscriberStatus(subscriberId, "subscribed");
     await createProfile(subscriber);
     await sendWelcomeEmail(subscriber);

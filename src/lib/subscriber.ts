@@ -89,10 +89,6 @@ export async function getSubscriber(subscriberId: string) {
 }
 
 export async function updateSubscriberStatus(subscriberId: string, status: SubscriberStatus) {
-  const subscriber = await getSubscriber(subscriberId);
-
-  if (!subscriber) throw new Error(`Subscriber ${subscriberId} not found`);
-
   const now = new Date().toISOString();
   await turso.execute({
     sql: `UPDATE subscribers
@@ -108,11 +104,9 @@ export async function updateSubscriberStatus(subscriberId: string, status: Subsc
     ]
   });
 
-  return {
-    ...subscriber,
-    status,
-    updated: now,
-  };
+  const subscriber = await getSubscriber(subscriberId);
+
+  return subscriber;
 }
 
 export async function deleteSubscriber(subscriberId: string) {
