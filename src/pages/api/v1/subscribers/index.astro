@@ -49,6 +49,9 @@ try {
     if (error.message.includes("UNIQUE constraint failed: subscribers.email")) {
       Astro.response.status = 409;
       Astro.response.statusText = "Conflict";
+    } else {
+      Astro.response.status = 400;
+      Astro.response.statusText = "Bad Request";
     }
   } else {
     Astro.response.status = 500;
