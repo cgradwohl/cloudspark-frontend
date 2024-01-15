@@ -1,7 +1,6 @@
 ---
-import BlogList from "@components/BlogList.astro";
 import { sendConfirmationEmail } from "@lib/courier";
-import { createSubscriber, getSubscriber } from "@lib/subscriber";
+import { createSubscriber } from "@lib/subscriber";
 import { LibsqlError } from "@libsql/client";
 
 const methods = ["POST"];
@@ -45,46 +44,72 @@ try {
   await sendConfirmationEmail(subscriber);
 } catch (error) {
   console.error(error);
+
   if (error instanceof LibsqlError) {
     if (error.message.includes("UNIQUE constraint failed: subscribers.email")) {
-      // NOTE: consider fetch(`${Astro.url.origin}/error.html`) so you canuse an actual html file
-      const html = `<div class="alert alert-warning">
-        <h4 class="alert-heading">You're already subscribed!</h4>
-        <p>We already have your email address on file. If you're not receiving emails, please check your spam folder.</p>
-      </div>`;
-
-      return new Response(html, {
-        status: 409,
-        statusText: "Conflict",
-        message: "Email already registered",
-      });
+      Astro.response.status = 409;
+      Astro.response.statusText = "Conflict";
     }
   } else {
-    // NOTE: consider fetch(`${Astro.url.origin}/error.html`) so you canuse an actual html file
-    const html = `<div class="alert alert-warning">
-      <h4 class="alert-heading">Something went wrong!</h4>
-      <p>We're not sure what happened, but we couldn't subscribe you. Please try again later.</p>
-    </div>`;
-
-    return new Response(html, {
-      status: 500,
-      statusText: "Internal Server Error",
-    });
+    Astro.response.status = 500;
+    Astro.response.statusText = "Internal Server Error";
   }
 }
 ---
 
-<div class="py-24 sm:py-32 lg:pb-40">
-  <div class="mx-auto max-w-7xl px-6 lg:px-8">
-    <div class="mx-auto max-w-2xl text-center">
-      <h3 class="text-4xl font-bold tracking-tight text-white sm:text-6xl">
-        Thank you for signing up to the Cloud Spark newsletter!
-      </h3>
-      <p class="mt-6 text-lg leading-8">
-        Please check your email and confirm your subscription! Be sure to check
-        out our existing newsletters and blogs:
+{
+  Astro.response.status === 409 && (
+    <div class="alert alert-warning">
+      <h4 class="alert-heading">You're already subscribed!</h4>
+      <p>
+        We already have your email address on file. If you're not receiving
+        emails, please check your spam folder.
       </p>
-      <BlogList />
     </div>
-  </div>
-</div>
+  )
+}
+
+{
+  Astro.response.status === 500 && (
+    <div class="alert alert-warning">
+      <h4 class="alert-heading">Something went wrong!</h4>
+      <p>
+        We're not sure what happened, but we couldn't subscribe you. Please try
+        again later.
+      </p>
+    </div>
+  )
+}
+
+{
+  Astro.response.status === 200 && (
+    <div class="py-24 sm:py-32 lg:pb-40">
+      <div class="mx-auto max-w-7xl px-6 lg:px-8">
+        <div class="mx-auto max-w-2xl text-center">
+          <div class="grid place-items-center h-screen content-center">
+            <h1>Welcome to Cloudspark!</h1>
+
+            <h3 class="mt-6 text-lg leading-8">
+              Please check your email and confirm your subscription!
+            </h3>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+<!-- TODO: Collect some data from the user. -->
+<!-- <h3 class="mt-6 text-lg leading-8">
+              While you're here, please let us know how we can help:
+            </h3>
+
+            <form>
+              <p>What is the best programming language?</p>
+              <input type="text" name="q1" />
+              <p>What is the best programming language?</p>
+              <input type="text" name="q2" />
+              <p>What is the best programming language?</p>
+              <input type="text" name="q3" />
+              <input type="submit" />
+            </form> -->
