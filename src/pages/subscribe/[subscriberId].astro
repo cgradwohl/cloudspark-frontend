@@ -1,18 +1,9 @@
 ---
+import { CloudsparkAPIClient } from "@lib/cloudspark";
+
 const subscriberId = Astro.params.subscriberId;
-
-if (!subscriberId || typeof subscriberId !== "string") {
-  // TODO: return html here?
-  return {
-    status: 400,
-    body: {
-      message: "subscriberId is required",
-    },
-  };
-}
-
-// 1. PUT /api/v1/subscribers/{id} - to validate id and update the subscriber to subscribed
-return fetch(`http://localhost:4321/api/v1/subscribers/${subscriberId}`, {
+console.log("HI");
+return await CloudsparkAPIClient(`/subscribers/${subscriberId}`, {
   method: "PUT",
 });
 ---
