@@ -2,8 +2,8 @@
 import { CloudsparkAPIClient } from "@lib/cloudspark";
 
 const subscriberId = Astro.params.subscriberId;
-console.log("HI");
-return await CloudsparkAPIClient(`/subscribers/${subscriberId}`, {
+
+return await CloudsparkAPIClient(`/api/v1/subscribers/${subscriberId}`, {
   method: "PUT",
 });
 ---

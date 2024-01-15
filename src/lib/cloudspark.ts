@@ -1,7 +1,7 @@
 export function makeCloudsparkURL(path: string) {
   return import.meta.env.NODE_ENV === "production"
-    ? `https://cloudspark.dev/api/v1/${path}`
-    : `http://localhost:4321/api/v1/${path}`;
+    ? `https://cloudspark.dev/${path}`
+    : `http://localhost:4321/${path}`;
 }
 
 export async function CloudsparkAPIClient(path: string, options: RequestInit) {

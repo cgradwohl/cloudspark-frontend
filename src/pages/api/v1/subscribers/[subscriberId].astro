@@ -13,7 +13,7 @@ import {
   updateSubscriberStatus,
 } from "@lib/subscriber";
 
-const methods = ["PUT", "DELETE"];
+const methods = ["GET", "PUT", "DELETE"];
 
 if (!methods.includes(Astro.request.method)) {
   return new Response(null, {
@@ -29,6 +29,15 @@ const subscriberId = Astro.params.subscriberId;
 
 if (!subscriberId || typeof subscriberId !== "string") {
   return Astro.redirect("/400");
+}
+
+if (Astro.request.method === "GET") {
+  const subscriber = await getSubscriber(subscriberId);
+  if (!subscriber) {
+    return Astro.redirect("/404");
+  }
+
+  Astro.response.status = 200;
 }
 
 if (Astro.request.method === "PUT") {
@@ -60,15 +69,50 @@ if (Astro.request.method === "PUT") {
 if (Astro.request.method === "DELETE") {
   try {
     const subscriber = await deleteSubscriber(subscriberId);
+    if (!subscriber) {
+      Astro.response.status = 404;
+      return Astro.redirect("/404");
+    }
 
     await deleteProfile(subscriber);
 
     await sendUnsubscribeEmail(subscriber);
   } catch (error) {
+    console.error(error);
     Astro.response.status = 500;
   }
 }
 ---
+
+{
+  Astro.request.method === "GET" && Astro.response.status === 200 && (
+    <Layout title="Unsubscribe">
+      <div class="grid place-items-center h-screen content-center">
+        <div id="content">
+          <h3 class="text-4xl font-bold tracking-tight py-12">
+            We will miss you.
+          </h3>
+          <h3
+            class="text-2xl
+        font-bold
+        tracking-tight py-8"
+          >
+            Are you sure you would like to unsubscribe?
+          </h3>
+
+          <button
+            hx-trigger="click"
+            hx-delete={`/api/v1/subscribers/${subscriberId}`}
+            hx-target="#content"
+            class="rounded-md bg-sky-500 p-2 text-sm font-semibold text-white"
+          >
+            <span>Unsubscribe</span>
+          </button>
+        </div>
+      </div>
+    </Layout>
+  )
+}
 
 {
   Astro.request.method === "PUT" && Astro.response.status === 200 && (
@@ -90,7 +134,7 @@ if (Astro.request.method === "DELETE") {
   Astro.request.method === "DELETE" && Astro.response.status === 200 && (
     <Layout title="Cloud Spark - Goodbye">
       <div class="grid place-items-center h-screen content-center">
-        <h1>Goodbye!</h1>
+        <h1 class="text-3xl">Goodbye!</h1>
 
         <p>We're sad to see you go.</p>
       </div>

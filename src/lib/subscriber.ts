@@ -117,6 +117,7 @@ export async function updateSubscriberStatus(subscriberId: string, status: Subsc
 
 export async function deleteSubscriber(subscriberId: string) {
   const subscriber = await getSubscriber(subscriberId);
+  if (!subscriber) return undefined;
 
   if (!subscriber) throw new Error(`Subscriber ${subscriberId} not found`);
 

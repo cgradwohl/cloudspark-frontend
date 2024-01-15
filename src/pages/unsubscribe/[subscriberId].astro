@@ -1,9 +1,9 @@
 ---
+import Layout from "@layouts/Layout.astro";
 import { CloudsparkAPIClient } from "@lib/cloudspark";
-
 const subscriberId = Astro.params.subscriberId;
 
-return CloudsparkAPIClient(`/subscribers/${subscriberId}`, {
-  method: "DELETE",
+return CloudsparkAPIClient(`/api/v1/subscribers/${subscriberId}`, {
+  method: "GET",
 });
 ---
