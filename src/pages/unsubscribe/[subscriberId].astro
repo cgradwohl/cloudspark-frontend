@@ -1,8 +1,9 @@
 ---
+import { CloudsparkAPIClient } from "@lib/cloudspark";
+
 const subscriberId = Astro.params.subscriberId;
 
-// 1. PUT /api/v1/subscribers/{id} - to validate id and update the subscriber to subscribed
-return fetch(`http://localhost:4321/api/v1/subscribers/${subscriberId}`, {
+return CloudsparkAPIClient(`/subscribers/${subscriberId}`, {
   method: "DELETE",
 });
 ---
