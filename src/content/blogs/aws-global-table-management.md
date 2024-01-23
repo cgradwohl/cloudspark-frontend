@@ -158,15 +158,3 @@ And that’s it!
 This script took me about an hour to develop, but ended up saving me a lot of time over the life of the Global table project.
 
 Feel free to reach out if you have any questions.
-
-https://gist.github.com/cgradwohl/a54dccea99f031541aca748852e706e7
-
-Need to delete the replicas first as regular tables.
-
-<aside>
-💡 The AWS cli docs say this:
-You can delete a replica table the same way you would delete any other table. Deleting the global table stops replication to that Region and deletes the table copy kept in that Region. However, you cannot stop replication while keeping copies of the table as independent entities, nor can you pause replication.
-
-</aside>
-
-Need to implement a polling mechanism to wait for the replicas to be deleted so that you do not need to wait for each replica to be deleted one by one.
