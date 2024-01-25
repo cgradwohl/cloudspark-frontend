@@ -1,6 +1,6 @@
 ---
 author: Chris Gradwohl
-date: 2023-12-05T16:53:53.226Z
+date: 2024-01-23T16:53:53.226Z
 title: A BASH script for Dynamo DB Global Table Management
 tags:
   - aws

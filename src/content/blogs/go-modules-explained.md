@@ -1,6 +1,6 @@
 ---
 author: Chris Gradwohl
-date: 2024-01-12T16:53:53.226Z
+date: 2023-12-12T16:53:53.226Z
 title: Go Modules Explained
 tags:
   - aws
